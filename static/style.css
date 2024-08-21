@@ -1,0 +1,27 @@
+:root {
+  --bg-color: #0e1217;
+  --primary-color: #900dcf;
+  --secondary-color: #e05cf8;
+  --primary-font: "Nunito", sans-serif;
+}
+
+.page-container {
+  font-optical-sizing: auto;
+  font-family: var(--primary-font);
+  background-color: var(--bg-color);
+}
+
+.page-container > .header {
+  color: white;
+}
+
+.page-container > .tabs > li {
+  cursor: pointer;
+  width: fit-content;
+  color: var(--secondary-color);
+  transition: all 0.2s ease-in-out;
+}
+
+.page-container > .tabs > li:hover {
+  color: var(--primary-color);
+}

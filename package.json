@@ -1,0 +1,42 @@
+{
+  "name": "synctab",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "license": "AGPL-version-3.0",
+  "private": false,
+  "engines": {
+    "node": ">= 14.0.0",
+    "npm": ">= 6.0.0"
+  },
+  "homepage": "",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "bugs": "",
+  "keywords": [],
+  "author": {
+    "name": "Asif Hossain Khan",
+    "email": "asif.khan10388@gmail.com",
+    "url": "https://asifkhan.netlify.app"
+  },
+  "contributors": [],
+  "scripts": {
+    "build": "webpack --config webpack.prod.ts",
+    "dev": "webpack --watch --config webpack.dev.ts"
+  },
+  "dependencies": {
+    "@tsconfig/recommended": "^1.0.7",
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.270",
+    "copy-webpack-plugin": "^12.0.2",
+    "typescript": "^5.5.4",
+    "webpack": "^5.93.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-merge": "^6.0.1"
+  }
+}
