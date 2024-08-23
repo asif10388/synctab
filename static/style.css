@@ -5,6 +5,10 @@
   --primary-font: "Nunito", sans-serif;
 }
 
+* {
+  color: white;
+}
+
 .page-container {
   font-optical-sizing: auto;
   font-family: var(--primary-font);
@@ -15,13 +19,22 @@
   color: white;
 }
 
-.page-container > .tabs > li {
+.tabs > li > * {
   cursor: pointer;
   width: fit-content;
   color: var(--secondary-color);
   transition: all 0.2s ease-in-out;
 }
 
-.page-container > .tabs > li:hover {
+.tabs > li {
+  display: flex;
+  align-items: center;
+}
+
+.tabs > li > span:hover {
   color: var(--primary-color);
+}
+
+.page-container > .tabs > li > button {
+  color: white;
 }

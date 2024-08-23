@@ -1,10 +1,15 @@
-chrome.action.onClicked.addListener(() => {
-  chrome.tabs.create({
-    url: chrome.runtime.getURL("index.html"),
-  });
-});
+const SYNCTAB_URL = "synctab.html";
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log("Service worker received message from sender %s", sender.id, request);
-  sendResponse({ message: "Service worker processed the message" });
+const createParams = {
+  url: chrome.runtime.getURL(SYNCTAB_URL),
+};
+
+function initiateSync(tabContext: chrome.tabs.Tab) {
+  setTimeout(() => {
+    chrome.runtime.sendMessage({ action: "initiateSync" });
+  }, 500);
+}
+
+chrome.action.onClicked.addListener(() => {
+  chrome.tabs.create(createParams, (tab) => initiateSync(tab));
 });
