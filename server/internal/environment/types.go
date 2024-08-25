@@ -1,7 +1,7 @@
 package environment
 
 const (
-	ApiServiceDir             = "/etc/apiservice"
+	ApiServiceDir             = ""
 	ApiServiceConfDir         = ApiServiceDir + "/conf"
 	ApiServiceDevEnvFile      = ApiServiceConfDir + "/apiservice-dev.env"
 	ApiServiceProdEnvFile     = ApiServiceConfDir + "/apiservice-prod.env"

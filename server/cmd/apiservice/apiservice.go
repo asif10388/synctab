@@ -7,16 +7,18 @@ import (
 )
 
 func main() {
-
 	input := apiserver.APIServerInput{
 		DeploymentType: string("dev"),
 	}
 
-	myAPIServer := apiserver.NewApiServer(input)
-
-	err := myAPIServer.Init()
+	myAPIServer, err := apiserver.NewApiServer(input)
 	if err != nil {
-		fmt.Errorf("failed to initialize API service")
+		fmt.Println("failed to allocate API service")
+	}
+
+	err = myAPIServer.Init()
+	if err != nil {
+		fmt.Println("failed to initialize API service")
 	}
 
 	myAPIServer.Start()
