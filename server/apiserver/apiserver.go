@@ -49,8 +49,6 @@ func NewApiServer(input APIServerInput) (*APIServer, error) {
 		apiServer.Versions[apiVersion] = allocatedServer
 	}
 
-	fmt.Println(apiServer.Versions["v1"])
-
 	return apiServer, nil
 }
 
@@ -62,6 +60,7 @@ func (apiServer *APIServer) initEngine() error {
 }
 
 func (apiServer *APIServer) Init() error {
+
 	apiServer.initEngine()
 
 	err := apiServer.Controller.Init(apiServer.Engine)
@@ -87,6 +86,8 @@ func (apiServer *APIServer) Start() {
 		if err != nil {
 			log.Error().Err(err).Msgf("failed to start API version %s", apiVersion)
 		}
+
+		log.Info().Msgf("starting api version %s", apiVersion)
 	}
 
 	port := apiServer.Env.GetStrEnv("SYNCTAB_API_PORTS")

@@ -4,7 +4,6 @@ import (
 	controller "github.com/asif10388/synctab/apiserver/controller"
 	env "github.com/asif10388/synctab/internal/environment"
 	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog/log"
 )
 
 var authControllerInstance *AuthController
@@ -21,7 +20,6 @@ func NewAuthController(controller *controller.Controller) (*AuthController, erro
 }
 
 func (authController *AuthController) Init(publicGroup *gin.RouterGroup) {
-	log.Info().Msg("adding authentication APIs")
 	authGroup := publicGroup.Group(authPrefix)
 
 	authGroup.POST(loginPath, authController.loginHandler)
