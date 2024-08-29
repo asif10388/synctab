@@ -27,5 +27,5 @@ func main() {
 	}
 
 	myAPIServer.Start()
-
+	fmt.Println("HELLO")
 }

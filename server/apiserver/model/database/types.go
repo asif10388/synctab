@@ -23,6 +23,6 @@ type Database struct {
 }
 
 type Statements struct {
-	primarySchemaTemplates map[string]string
-	primarySchemaSql       map[string]string
+	schemaTemplates map[string]string
+	schemaSql       map[string]string
 }

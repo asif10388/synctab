@@ -11,7 +11,7 @@ import (
 
 func (db *Database) Init(ctx context.Context, afterConnectCb AfterConnectFn) error {
 	e := env.GetEnvironment()
-	log.Info().Msg("initializing connection to configdb server")
+	log.Info().Msg("initializing connection to database server")
 
 	host := e.GetStrEnv("SYNCTAB_CONFIGDB_HOST")
 	port := e.GetStrEnv("SYNCTAB_CONFIGDB_PORT")
@@ -25,6 +25,7 @@ func (db *Database) Init(ctx context.Context, afterConnectCb AfterConnectFn) err
 	dbUrl := protocol + "://" + user + ":" + password + "@" + host + ":" + port + "/" + dbName + "?sslmode=" + secure + "&pool_max_conns=" + maxConns
 
 	config, err := pgxpool.ParseConfig(dbUrl)
+
 	if err != nil {
 		log.Error().Err(err).Msg("failed to parse connection string")
 		return fmt.Errorf("failed to parse connection string: %v", err)
@@ -36,8 +37,8 @@ func (db *Database) Init(ctx context.Context, afterConnectCb AfterConnectFn) err
 
 	cpool, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to connect to configuration database server")
-		return fmt.Errorf("failed to connect to Postgres server: %v", err)
+		log.Error().Err(err).Msg("failed to connect to database server")
+		return fmt.Errorf("failed to connect to database server: %v", err)
 	}
 
 	db.CPool = cpool
@@ -45,7 +46,7 @@ func (db *Database) Init(ctx context.Context, afterConnectCb AfterConnectFn) err
 	var greeting string
 	err = cpool.QueryRow(ctx, "select 'Hello World!'").Scan(&greeting)
 	if err != nil {
-		log.Error().Err(err).Msg("connection test to configuration database server failed")
+		log.Error().Err(err).Msg("connection test to database server failed")
 	}
 
 	log.Info().Msg("successfully connected to configuration database")

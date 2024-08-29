@@ -31,20 +31,20 @@ func Init(ctx context.Context, input Input) (*Database, error) {
 				break
 			}
 
-			log.Error().Err(err).Msgf("failed to connect to configuration database. will attempt again after %d backoff", connbackoff)
+			log.Error().Err(err).Msgf("failed to connect to database. will attempt again after %d backoff", connbackoff)
 			time.Sleep(connbackoff * time.Second)
 		}
 
 		if err != nil {
-			log.Error().Err(err).Msgf("failed to connect to configuration database after %d attempts. giving up", connrepeats)
-			return nil, fmt.Errorf("failed to connect to configuration database: %w", err)
+			log.Error().Err(err).Msgf("failed to connect to database after %d attempts. giving up", connrepeats)
+			return nil, fmt.Errorf("failed to connect to database: %w", err)
 		}
 
-		log.Logger.Info().Msg("setting up primary schema post connection")
-		err = db.SetupPrimarySchema(ctx)
+		log.Logger.Info().Msg("setting up schema post connection")
+		err = db.SetupSchema(ctx)
 		if err != nil {
-			log.Error().Err(err).Msg("failed to setup primary schema in configuration database")
-			return nil, fmt.Errorf("failed to setup primary schema in configuration database: %w", err)
+			log.Error().Err(err).Msg("failed to setup schema in database")
+			return nil, fmt.Errorf("failed to setup schema in database: %w", err)
 		}
 
 		dbInstance = db
@@ -54,6 +54,12 @@ func Init(ctx context.Context, input Input) (*Database, error) {
 }
 
 func (db *Database) afterConnect(ctx context.Context, conn *pgx.Conn) error {
+	err := db.PrepareSchema(ctx, conn)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to setup prepared statements for schema in new connection to configuration database")
+		return err
+	}
+
 	return nil
 }
 

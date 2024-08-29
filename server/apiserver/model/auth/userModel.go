@@ -26,7 +26,7 @@ func init() {
 		"add_user_v1": "select _id from main.add_user_v1($1, $2, $3)",
 	}
 
-	database.NewStatements().AddPrimarySchemaTemplateMap(userTemplates)
+	database.NewStatements().AddSchemaTemplateMap(userTemplates)
 }
 
 func (auth *Auth) checkRegisterCreds(creds *UserRegisterCredentials) error {
@@ -62,16 +62,13 @@ func (auth *Auth) getRegisterCreds(ctx *gin.Context) (*UserRegisterCredentials, 
 }
 
 func (user *User) create(ctx *gin.Context, auth *Auth, tx pgx.Tx) (err error) {
-	// e := environment.GetEnvironment()
-	// schemaName := e.GetStrEnv("SYNCTAB_ACCOUNT_PRIMARY_SCHEMA_NAME")
-
 	fmt.Println(database.Statements{})
 
-	// err = tx.QueryRow(ctx, "select _id from main.add_user_v1($1, $2, $3)", user.Email, user.Username, user.PasswordHash).Scan(&user.Id)
-	// if err != nil {
-	// 	log.Error().Err(err).Msg("failed to create user")
-	// 	return model.ErrUserAddFailed
-	// }
+	err = tx.QueryRow(ctx, "add_user_v1", user.Email, user.Username, user.PasswordHash).Scan(&user.Id)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to create user")
+		return model.ErrUserAddFailed
+	}
 
 	return nil
 }
