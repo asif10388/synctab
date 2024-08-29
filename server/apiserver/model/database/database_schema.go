@@ -27,7 +27,7 @@ func (db *Database) SetupPrimarySchema(ctx context.Context) error {
 	}
 
 	if len(templateStatements) == 0 {
-		log.Warn().Msg("did not find any SQL statements to initialize primary schema")
+		log.Error().Msg("did not find any SQL statements to initialize primary schema")
 		return nil
 	}
 
@@ -63,7 +63,7 @@ func (db *Database) getSqlStatementsFromDir(dir string) ([]string, error) {
 		panic(pwdErr)
 	}
 
-	sqlFiles, err := filepath.Glob(filepath.Join(pwd+"/apiserver/model/sql/primary") + "/*.sql")
+	sqlFiles, err := filepath.Glob(filepath.Join(pwd+"/apiserver/model/sql/synctabdb") + "/*.sql")
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (db *Database) getSqlStatementsFromDir(dir string) ([]string, error) {
 		statements = append(statements, fileStatements...)
 	}
 
-	fmt.Println(statements)
+	fmt.Println(len(statements))
 	return statements, nil
 
 }

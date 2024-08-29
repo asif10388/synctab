@@ -67,10 +67,6 @@ type ModelCommon struct {
 	DeletedAtTm *time.Time         `json:"-"`
 }
 
-const (
-	UserKey = "user"
-)
-
 // Errors
 var (
 	// User

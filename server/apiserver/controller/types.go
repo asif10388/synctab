@@ -18,12 +18,17 @@ type ApiVersion interface {
 	// Stop() error
 }
 
-const PingPath = "/ping"
+const (
+	PingPath     = "/ping"
+	ApiModelTime = "api-model-time"
+)
 
 type Response struct {
 	Status  int
 	Message string `json:"message"`
 }
+
+type ModelFunc func(*gin.Context) error
 
 var (
 	ErrInvalidName               = errors.New("invalid name")

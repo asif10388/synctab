@@ -24,7 +24,7 @@ func NewV1Controller(controller *controllerPkg.Controller) (controllerPkg.ApiVer
 			return nil, err
 		}
 
-		authController, err := authcontrollerPkg.NewAuthController(controller)
+		authController, err := authcontrollerPkg.NewAuthController(controller, model)
 		if err != nil {
 			log.Error().Err(err).Msg("failed to initialize v1 auth controller")
 			return nil, err
