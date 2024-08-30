@@ -16,3 +16,5 @@ begin
 	returning id into _id;
 end;
 $$ language plpgsql;
+
+/*SQLEND*/

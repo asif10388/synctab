@@ -2,7 +2,6 @@ package model
 
 import (
 	"errors"
-	"regexp"
 	"time"
 
 	"github.com/asif10388/synctab/apiserver/controller"
@@ -12,31 +11,15 @@ import (
 )
 
 type ModelDefaults struct {
-	PrimarySchemaName        string
-	PrimarySchemaNamePattern string
-	PrimarySchemaNameRegexp  *regexp.Regexp
+	SchemaName  string
+	TokenSecret string
 
-	SchemaSetupTimeout time.Duration
-
-	MaxNameLen      int
-	MaxEmailLen     int
-	MaxUsernameLen  int
-	MaxUrlLen       int
-	MaxIPLen        int
-	MaxPasswordLen  int
-	MinPasswordLen  int
-	MaxSchemaLen    int
-	MaxHostnameLen  int
-	MaxEndpointsLen int
-
-	EndpointsSeparator string
-	HostPortSeparator  string
-
-	HostnamePattern string
-	HostnameRegexp  *regexp.Regexp
-
-	LoginIdPattern string
-	LoginIdRegexp  *regexp.Regexp
+	MaxUrlLen      int
+	MaxNameLen     int
+	MaxEmailLen    int
+	MaxUsernameLen int
+	MaxPasswordLen int
+	MinPasswordLen int
 
 	MaxPaginationEntries int
 
@@ -59,25 +42,19 @@ type Model struct {
 }
 
 type ModelCommon struct {
-	CreatedAt   pgtype.Timestamptz `json:"-"`
-	CreatedAtTm *time.Time         `json:"created_at,omitempty"`
-	UpdatedAt   pgtype.Timestamptz `json:"-"`
-	UpdatedAtTm *time.Time         `json:"updated_at,omitempty"`
-	DeletedAt   pgtype.Timestamptz `json:"-"`
-	DeletedAtTm *time.Time         `json:"-"`
+	CreatedAt pgtype.Timestamptz `json:"-"`
+	UpdatedAt pgtype.Timestamptz `json:"-"`
 }
 
 // Errors
 var (
 	// User
-	ErrUserInvalid           = errors.New("invalid user")
-	ErrUserNotFound          = errors.New("failed to find user")
-	ErrUserAddFailed         = errors.New("failed to add user")
-	ErrUserUpdateFailed      = errors.New("failed to update user")
-	ErrUserDeleteFailed      = errors.New("failed to delete user")
-	ErrUserInitFailed        = errors.New("failed to initialize user")
-	ErrUserSetPasswordFailed = errors.New("failed to set user password")
-	ErrUserAuthFailed        = errors.New("user authentication failure")
+	ErrUserInvalid      = errors.New("invalid user")
+	ErrUserAddFailed    = errors.New("failed to add user")
+	ErrUserNotFound     = errors.New("failed to find user")
+	ErrUserUpdateFailed = errors.New("failed to update user")
+	ErrUserDeleteFailed = errors.New("failed to delete user")
+	ErrUserAuthFailed   = errors.New("failed to authenticate user")
 
 	// Token
 	ErrInvalidToken = errors.New("invalid token")

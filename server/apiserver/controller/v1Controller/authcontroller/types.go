@@ -20,3 +20,9 @@ type AuthController struct {
 	Model      *model.Model
 	Auth       *auth.Auth
 }
+
+type LoginResponse struct {
+	Token    string `json:"token"`
+	Email    string `json:"email"`
+	Username string `json:"username"`
+}

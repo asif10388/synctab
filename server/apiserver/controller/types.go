@@ -24,7 +24,6 @@ const (
 )
 
 type Response struct {
-	Status  int
 	Message string `json:"message"`
 }
 

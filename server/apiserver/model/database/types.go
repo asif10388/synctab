@@ -14,7 +14,7 @@ var (
 )
 
 type Input struct {
-	PrimarySchemaName string
+	SchemaName string
 }
 
 type Database struct {

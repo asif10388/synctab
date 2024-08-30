@@ -1,18 +1,27 @@
 package auth
 
-import "github.com/asif10388/synctab/apiserver/model"
+import (
+	"github.com/asif10388/synctab/apiserver/model"
+	"github.com/golang-jwt/jwt/v5"
+)
 
 type Auth struct {
 	*model.Model
 }
 
+type Claims struct {
+	Version int    `json:"version"`
+	Email   string `json:"email"`
+	jwt.RegisteredClaims
+}
+
 type Credentials struct {
-	Username string `json:"username" binding:"required"`
+	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
 type UserRegisterCredentials struct {
-	Email string `json:"email" binding:"required"`
+	Username string `json:"username" binding:"required"`
 	*Credentials
 }
 
@@ -20,7 +29,8 @@ type UserLoginCredentials struct {
 	*Credentials
 }
 
-type AuthenticationResponse struct {
-	Token  string
-	UserId string
+type LoginResponse struct {
+	Token    string
+	Username string
+	Email    string
 }

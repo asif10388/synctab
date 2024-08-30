@@ -24,3 +24,11 @@ func (statements *Statements) AddSchemaTemplateMap(templates map[string]string) 
 
 	return nil
 }
+
+func (statements *Statements) GetSchemaTemplate(key string) string {
+	if statements == nil || statements != statementsInstance {
+		return ""
+	}
+
+	return statements.schemaTemplates[key]
+}

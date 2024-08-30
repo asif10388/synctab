@@ -54,12 +54,6 @@ func Init(ctx context.Context, input Input) (*Database, error) {
 }
 
 func (db *Database) afterConnect(ctx context.Context, conn *pgx.Conn) error {
-	err := db.PrepareSchema(ctx, conn)
-	if err != nil {
-		log.Error().Err(err).Msg("failed to setup prepared statements for schema in new connection to configuration database")
-		return err
-	}
-
 	return nil
 }
 

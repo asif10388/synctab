@@ -9,21 +9,17 @@ import (
 
 func (authController *AuthController) registerHandler(ctx *gin.Context) {
 	var err error
-	// var res *auth.AuthenticationResponse
-
-	// var requestBody any
-	// jsonData := ctx.BindJSON(requestBody)
 
 	defer func() {
 		if err != nil {
 			ctx.Error(err)
-			ctx.JSON(http.StatusUnauthorized, controller.Response{Message: "Authentication failed"})
+			ctx.JSON(http.StatusUnauthorized, controller.Response{Message: err.Error()})
 		} else {
-			ctx.JSON(http.StatusOK, controller.Response{Message: "Success my ass"})
+			ctx.JSON(http.StatusOK, controller.Response{Message: "Successfully created user"})
 		}
 	}()
 
-	err = authController.Auth.UserRegister(ctx)
+	err = authController.Auth.CreateUser(ctx)
 	if err != nil {
 		return
 	}
