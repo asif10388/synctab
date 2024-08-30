@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/asif10388/synctab/apiserver/model"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
@@ -34,4 +35,33 @@ func (auth *Auth) GetJWTToken(ctx context.Context, creds *Credentials, claims *C
 	}
 
 	return tokenStr, nil
+}
+
+func (auth *Auth) ParseJWTToken(ctx context.Context, tokenString string) (*Claims, error) {
+	jwtSecret := auth.TokenSecret
+
+	claims := &Claims{}
+
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(jwtSecret), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !token.Valid {
+		return nil, model.ErrInvalidToken
+	}
+
+	return claims, nil
+}
+
+func (auth *Auth) ValidateJWTToken(ctx context.Context, tokenString string) (*Claims, error) {
+	claims, err := auth.ParseJWTToken(ctx, tokenString)
+	if err != nil {
+		return nil, err
+	}
+
+	return claims, nil
 }

@@ -2,8 +2,8 @@ package authcontroller
 
 import (
 	controller "github.com/asif10388/synctab/apiserver/controller"
-	"github.com/asif10388/synctab/apiserver/model"
-	"github.com/asif10388/synctab/apiserver/model/auth"
+	model "github.com/asif10388/synctab/apiserver/model"
+	auth "github.com/asif10388/synctab/apiserver/model/auth"
 	env "github.com/asif10388/synctab/internal/environment"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"

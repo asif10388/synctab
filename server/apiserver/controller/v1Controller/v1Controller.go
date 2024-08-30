@@ -7,7 +7,9 @@ import (
 	controller "github.com/asif10388/synctab/apiserver/controller"
 	controllerPkg "github.com/asif10388/synctab/apiserver/controller"
 	authcontrollerPkg "github.com/asif10388/synctab/apiserver/controller/v1Controller/authcontroller"
+	urlscontrollerPkg "github.com/asif10388/synctab/apiserver/controller/v1Controller/urlscontroller"
 	modelPkg "github.com/asif10388/synctab/apiserver/model"
+
 	envPkg "github.com/asif10388/synctab/internal/environment"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -30,11 +32,18 @@ func NewV1Controller(controller *controllerPkg.Controller) (controllerPkg.ApiVer
 			return nil, err
 		}
 
+		urlsController, err := urlscontrollerPkg.NewUrlsController(controller, model)
+		if err != nil {
+			log.Error().Err(err).Msg("failed to initialize v1 urls controller")
+			return nil, err
+		}
+
 		v1Controller = &V1Controller{
 			Model:          model,
 			Controller:     controller,
-			Env:            envPkg.GetEnvironment(),
 			AuthController: authController,
+			UrlsController: urlsController,
+			Env:            envPkg.GetEnvironment(),
 		}
 	}
 
@@ -60,6 +69,7 @@ func (v1Controller *V1Controller) Init() error {
 	})
 
 	v1Controller.AuthController.Init(publicGroup)
+	v1Controller.UrlsController.Init(publicGroup)
 
 	return nil
 }

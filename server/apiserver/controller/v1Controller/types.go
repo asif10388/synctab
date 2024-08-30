@@ -3,6 +3,7 @@ package v1controller
 import (
 	controller "github.com/asif10388/synctab/apiserver/controller"
 	"github.com/asif10388/synctab/apiserver/controller/v1Controller/authcontroller"
+	"github.com/asif10388/synctab/apiserver/controller/v1Controller/urlscontroller"
 	"github.com/asif10388/synctab/apiserver/model"
 	"github.com/asif10388/synctab/apiserver/model/auth"
 	env "github.com/asif10388/synctab/internal/environment"
@@ -16,4 +17,5 @@ type V1Controller struct {
 	Env            *env.Environment
 	Controller     *controller.Controller
 	AuthController *authcontroller.AuthController
+	UrlsController *urlscontroller.UrlController
 }
