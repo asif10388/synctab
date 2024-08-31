@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"time"
-
 	env "github.com/asif10388/synctab/internal/environment"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -70,21 +68,4 @@ func (controller *Controller) GetCorsConfig() cors.Config {
 	}
 
 	return corsConfig
-}
-
-func (controller *Controller) GetAuthType() string {
-	return controller.env.GetStrEnv("SYNCTAB_AUTH_TYPE")
-}
-
-func (controller *Controller) BearerAuthEnabled() bool {
-	return BearerAuth == AuthType(controller.GetAuthType())
-}
-
-func (c *Controller) ModelWrapper(ctx *gin.Context, f ModelFunc) error {
-	start := time.Now()
-	defer func() {
-		ctx.Set(ApiModelTime, time.Since(start).Milliseconds())
-	}()
-
-	return f(ctx)
 }

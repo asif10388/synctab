@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	database "github.com/asif10388/synctab/internal/database"
@@ -62,16 +63,20 @@ func (db *Database) Close(ctx context.Context) error {
 	return nil
 }
 
+func (db *Database) processStatement(statement string) string {
+	return strings.Replace(statement, "{{.SchemaName}}", db.Input.SchemaName, -1)
+}
+
 func (db *Database) execStatementsInTx(ctx context.Context, statements []string, tx pgx.Tx) (err error) {
 	for _, statement := range statements {
-		_, err := tx.Exec(ctx, statement)
+		processedStatement := db.processStatement(statement)
+		_, err := tx.Exec(ctx, processedStatement)
 		if err != nil {
-			log.Error().Err(err).Msgf("failed to execute sql statement %s", statement)
-			break
+			log.Error().Err(err).Msgf("failed to execute sql statement %s", processedStatement)
+			return err
 		}
 	}
-
-	return err
+	return nil
 }
 
 func (db *Database) execStatements(ctx context.Context, statements []string) (err error) {

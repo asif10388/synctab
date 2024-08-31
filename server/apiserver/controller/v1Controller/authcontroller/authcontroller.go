@@ -2,6 +2,7 @@ package authcontroller
 
 import (
 	controller "github.com/asif10388/synctab/apiserver/controller"
+	"github.com/asif10388/synctab/apiserver/middleware"
 	model "github.com/asif10388/synctab/apiserver/model"
 	auth "github.com/asif10388/synctab/apiserver/model/auth"
 	env "github.com/asif10388/synctab/internal/environment"
@@ -11,7 +12,7 @@ import (
 
 var authControllerInstance *AuthController
 
-func NewAuthController(controller *controller.Controller, model *model.Model) (*AuthController, error) {
+func NewAuthController(controller *controller.Controller, model *model.Model, middleware *middleware.Middleware) (*AuthController, error) {
 	if authControllerInstance == nil {
 		authModel, err := auth.NewAuthModel(model)
 		if err != nil {

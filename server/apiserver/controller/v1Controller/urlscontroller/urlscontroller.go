@@ -2,6 +2,7 @@ package urlscontroller
 
 import (
 	controller "github.com/asif10388/synctab/apiserver/controller"
+	"github.com/asif10388/synctab/apiserver/middleware"
 	model "github.com/asif10388/synctab/apiserver/model"
 	urls "github.com/asif10388/synctab/apiserver/model/urls"
 	env "github.com/asif10388/synctab/internal/environment"
@@ -11,7 +12,7 @@ import (
 
 var urlControllerInstance *UrlController
 
-func NewUrlsController(controller *controller.Controller, model *model.Model) (*UrlController, error) {
+func NewUrlsController(controller *controller.Controller, model *model.Model, middleware *middleware.Middleware) (*UrlController, error) {
 	if urlControllerInstance == nil {
 		urlsModel, err := urls.NewUrlsModel(model)
 		if err != nil {
@@ -20,9 +21,10 @@ func NewUrlsController(controller *controller.Controller, model *model.Model) (*
 		}
 
 		urlControllerInstance = &UrlController{
-			Controller: controller,
 			Model:      model,
+			Controller: controller,
 			Urls:       urlsModel,
+			Middleware: middleware,
 			Env:        env.GetEnvironment(),
 		}
 	}
