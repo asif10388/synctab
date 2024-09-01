@@ -7,6 +7,7 @@ import (
 
 type Auth struct {
 	*model.Model
+	UserId string
 }
 
 type Claims struct {

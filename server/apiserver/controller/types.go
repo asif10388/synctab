@@ -32,20 +32,14 @@ type ModelFunc func(*gin.Context) error
 var (
 	ErrInvalidName               = errors.New("invalid name")
 	ErrInvalidInput              = errors.New("invalid input")
-	ErrInvalidSchema             = errors.New("invalid schema")
-	ErrInvalidRequest            = errors.New("invalid request")
-	ErrInvalidLoginId            = errors.New("invalid login id")
 	ErrInvalidPassword           = errors.New("invalid password")
-	ErrInvalidId                 = errors.New("invalid entity id")
 	ErrNoTokenFound              = errors.New("did not find token")
 	ErrInvalidCreds              = errors.New("invalid credentials")
 	ErrUserNotAuthorized         = errors.New("user not authorized")
 	ErrInternal                  = errors.New("internal server error")
 	ErrInvalidEmail              = errors.New("invalid email address")
 	ErrIncorrectEmail            = errors.New("incorrect email address")
-	ErrModelResNotFound          = errors.New("did not find model response")
 	ErrEnvironmentNotInitialized = errors.New("failed to initialize environment")
-	ErrInvalidModelRes           = errors.New("invalid or unexpected model response")
 )
 
 type RoutePrefixes struct {

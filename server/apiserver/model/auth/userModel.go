@@ -13,7 +13,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type User struct {
+type UserModel struct {
 	Id           string `json:"id"`
 	Email        string `json:"email"`
 	Username     string `json:"username"`
@@ -23,7 +23,7 @@ type User struct {
 }
 
 func init() {
-	userFields := "email, username, passwordhash"
+	userFields := "id, email, username, passwordhash"
 
 	userTemplates := map[string]string{
 		"add_user_v1":          "select _id from main.add_user_v1($1, $2, $3)",
@@ -65,13 +65,13 @@ func (auth *Auth) getRegisterCreds(ctx *gin.Context) (*UserRegisterCredentials, 
 	return registerCreds, nil
 }
 
-func (user *User) create(ctx *gin.Context, auth *Auth, tx pgx.Tx) (err error) {
+func (userModel *UserModel) create(ctx *gin.Context, auth *Auth, tx pgx.Tx) (err error) {
 	addUserSQL := database.NewStatements().GetSchemaTemplate("add_user_v1")
 	if addUserSQL == "" {
 		return fmt.Errorf("add_user_v1 SQL template not found")
 	}
 
-	err = tx.QueryRow(ctx, addUserSQL, user.Email, user.Username, user.PasswordHash).Scan(&user.Id)
+	err = tx.QueryRow(ctx, addUserSQL, userModel.Email, userModel.Username, userModel.PasswordHash).Scan(&userModel.Id)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to create user")
 		return model.ErrUserAddFailed
@@ -81,20 +81,20 @@ func (user *User) create(ctx *gin.Context, auth *Auth, tx pgx.Tx) (err error) {
 }
 
 func (auth *Auth) CreateUser(ctx *gin.Context) error {
-	user := &User{}
+	userModel := &UserModel{}
 
-	err := ctx.ShouldBindJSON(user)
+	err := ctx.ShouldBindJSON(userModel)
 	if err != nil {
 		return err
 	}
 
-	passwordHash, err := auth.GetPasswordHash(user.Password)
+	passwordHash, err := auth.GetPasswordHash(userModel.Password)
 	if err != nil {
 		log.Error().Err(err).Msgf("failed to create a password hash")
 		return err
 	}
 
-	user.PasswordHash = passwordHash
+	userModel.PasswordHash = passwordHash
 
 	tx, err := auth.Database.CPool.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
@@ -119,7 +119,7 @@ func (auth *Auth) CreateUser(ctx *gin.Context) error {
 		}
 	}()
 
-	err = user.create(ctx, auth, tx)
+	err = userModel.create(ctx, auth, tx)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to create user")
 		return err
@@ -128,16 +128,17 @@ func (auth *Auth) CreateUser(ctx *gin.Context) error {
 	return nil
 }
 
-func (user *User) login(ctx context.Context, auth *Auth, tx pgx.Tx) error {
+func (userModel *UserModel) login(ctx context.Context, auth *Auth, tx pgx.Tx) error {
 	getUserSQL := database.NewStatements().GetSchemaTemplate("get_user_by_email_v1")
 	if getUserSQL == "" {
-		return fmt.Errorf("get_user_by_email_v1 SQL template not found")
+		return fmt.Errorf("get_user_by_email_v1 SQL function not found")
 	}
 
-	err := tx.QueryRow(ctx, getUserSQL, user.Email).Scan(
-		&user.Email,
-		&user.Username,
-		&user.PasswordHash,
+	err := tx.QueryRow(ctx, getUserSQL, userModel.Email).Scan(
+		&userModel.Id,
+		&userModel.Email,
+		&userModel.Username,
+		&userModel.PasswordHash,
 	)
 
 	if err != nil {
@@ -153,9 +154,9 @@ func (user *User) login(ctx context.Context, auth *Auth, tx pgx.Tx) error {
 }
 
 func (auth *Auth) LoginUser(ctx *gin.Context) (*LoginResponse, error) {
+	userModel := &UserModel{}
 
-	user := &User{}
-	err := ctx.ShouldBindJSON(&user)
+	err := ctx.ShouldBindJSON(&userModel)
 	if err != nil {
 		return nil, controller.ErrInvalidInput
 	}
@@ -183,25 +184,25 @@ func (auth *Auth) LoginUser(ctx *gin.Context) (*LoginResponse, error) {
 		}
 	}()
 
-	err = user.login(ctx, auth, tx)
+	err = userModel.login(ctx, auth, tx)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to fetch user")
 		return nil, err
 	}
 
-	if !auth.CompareAdaptiveHashString(user.PasswordHash, user.Password) {
+	if !auth.CompareAdaptiveHashString(userModel.PasswordHash, userModel.Password) {
 		log.Error().Err(model.ErrUserAuthFailed).Msg("user authentication failed")
 		return nil, model.ErrUserAuthFailed
 	}
 
 	claims := Claims{
 		Version: 1,
-		Email:   user.Email,
+		Email:   userModel.Email,
 	}
 
 	creds := Credentials{
-		Email:    user.Email,
-		Password: user.Password,
+		Email:    userModel.Email,
+		Password: userModel.Password,
 	}
 
 	token, err := auth.GetJWTToken(ctx, &creds, &claims, time.Now().UTC())
@@ -211,11 +212,13 @@ func (auth *Auth) LoginUser(ctx *gin.Context) (*LoginResponse, error) {
 	}
 
 	response := LoginResponse{
-		Email:    user.Email,
-		Username: user.Username,
 		Token:    token,
+		Email:    userModel.Email,
+		Username: userModel.Username,
 	}
 
-	log.Info().Str("username", user.Username).Msg("user logged in successfully")
+	auth.UserId = userModel.Id
+
+	log.Info().Str("user_id", auth.UserId).Msg("user logged in successfully")
 	return &response, nil
 }
