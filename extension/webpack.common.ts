@@ -4,9 +4,10 @@ import CopyWebpackPlugin from "copy-webpack-plugin";
 
 const config: webpack.Configuration = {
   entry: {
-    background: "./src/scripts/background.ts",
-    content: "./src/scripts/content.ts",
     popup: "./src/scripts/popup.ts",
+    login: "./src/scripts/login.ts",
+    content: "./src/scripts/content.ts",
+    background: "./src/scripts/background.ts",
   },
   resolve: {
     extensions: [".ts"],

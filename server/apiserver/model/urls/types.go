@@ -1,6 +1,8 @@
 package urls
 
 import (
+	"time"
+
 	"github.com/asif10388/synctab/apiserver/model"
 	"github.com/asif10388/synctab/apiserver/model/auth"
 )
@@ -28,6 +30,7 @@ type Tabs struct {
 }
 
 type TransformUrls struct {
-	GroupId string `json:"group_id"`
-	Tabs    []Tabs `json:"tabs"`
+	CreatedAt time.Time `json:"created_at"`
+	GroupId   string    `json:"group_id"`
+	Tabs      []Tabs    `json:"tabs"`
 }

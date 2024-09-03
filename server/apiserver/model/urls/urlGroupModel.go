@@ -191,14 +191,16 @@ func (urls *Urls) GetUrlsByUserId(ctx *gin.Context) (*[]TransformUrls, error) {
 
 				if index+1 >= len(urls.UrlResponse) {
 					transformedUrls = append(transformedUrls, TransformUrls{
-						GroupId: currentGroupId,
-						Tabs:    tabs,
+						CreatedAt: item.CreatedAt.Time,
+						GroupId:   currentGroupId,
+						Tabs:      tabs,
 					})
 				} else {
 					if urls.UrlResponse[index+1].GroupId != currentGroupId {
 						transformedUrls = append(transformedUrls, TransformUrls{
-							GroupId: currentGroupId,
-							Tabs:    tabs,
+							CreatedAt: item.CreatedAt.Time,
+							GroupId:   currentGroupId,
+							Tabs:      tabs,
 						})
 
 						currentGroupId = ""

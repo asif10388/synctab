@@ -2,14 +2,14 @@ import { v4 as uuidv4 } from "uuid";
 
 type Tab = {
   id: number;
-  title: string;
   url: string;
+  title: string;
 };
 
 type TabGroup = {
-  id: string;
-  date: string;
   tabs: Tab[];
+  group_id: string;
+  created_at: string;
 };
 
 const tabContainer = document?.getElementById("tabs-container");
@@ -17,36 +17,36 @@ const tabContainer = document?.getElementById("tabs-container");
 const convertDate = (date: string) => {
   const newDate = new Date(date);
   return newDate.toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
     month: "long",
     day: "numeric",
+    year: "numeric",
     hour: "numeric",
+    weekday: "long",
     minute: "numeric",
   });
 };
 
-const displayTabs = () => {
+const displayTabs = async () => {
   if (!tabContainer) return;
   tabContainer.innerHTML = "";
 
   chrome.storage.local.get("savedTabs", function (data) {
     const savedTabs =
       data.savedTabs.sort((a: TabGroup, b: TabGroup) => {
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       }) || [];
 
     savedTabs.forEach(function (tab: TabGroup) {
       const tabHTML = `				
-		<div class="tab-group mb-2" data-group-id="${tab.id}">	
-			<h3 class="text-2xl font-black">${convertDate(tab.date)}</h3>
-			<ul id="tab-${tab.id}" class="tabs"></ul>
+		<div class="tab-group mb-2" data-group-id="${tab.group_id}">	
+			<h3 class="text-2xl font-black">${convertDate(tab.created_at)}</h3>
+			<ul id="tab-${tab.group_id}" class="tabs"></ul>
 		</div>
 		`;
 
       tabContainer.insertAdjacentHTML("beforeend", tabHTML);
 
-      const tabGroup = document.getElementById(`tab-${tab.id}`);
+      const tabGroup = document.getElementById(`tab-${tab.group_id}`);
       if (!tabGroup) return;
 
       tab.tabs.forEach((t: Tab) => {
@@ -63,10 +63,10 @@ const displayTabs = () => {
         tabGroup.appendChild(tabItem);
 
         const deleteButton = document.getElementById(`delete-${t.id}`);
-        if (deleteButton) deleteButton.onclick = () => deleteTab(tab.id, t.id || 0);
+        if (deleteButton) deleteButton.onclick = () => deleteTab(tab.group_id, t.id || 0);
 
         const tabToUrl = document.getElementById(`url-${t.id?.toString() || ""}`);
-        if (tabToUrl) tabToUrl.onclick = () => onClickUrl(tab.id, t.id || 0, t.url || "");
+        if (tabToUrl) tabToUrl.onclick = () => onClickUrl(tab.group_id, t.id || 0, t.url || "");
       });
     });
   });
@@ -81,14 +81,14 @@ const onClickUrl = async (groupId: string, tabId: number, url: string) => {
   chrome.storage.local.get("savedTabs", function (data) {
     const savedTabs = data.savedTabs.reverse() || [];
 
-    const findTabGroup = savedTabs.find((tabGroup: TabGroup) => tabGroup.id === groupId);
+    const findTabGroup = savedTabs.find((tabGroup: TabGroup) => tabGroup.group_id === groupId);
     if (!findTabGroup) return;
 
     const newSavedTabs = findTabGroup.tabs.filter((tab: Tab) => tab.id !== tabId);
 
     if (newSavedTabs.length === 0) {
       chrome.storage.local.set({
-        savedTabs: savedTabs.filter((tabGroup: TabGroup) => tabGroup.id !== groupId),
+        savedTabs: savedTabs.filter((tabGroup: TabGroup) => tabGroup.group_id !== groupId),
       });
 
       tabGroup?.remove();
@@ -97,7 +97,7 @@ const onClickUrl = async (groupId: string, tabId: number, url: string) => {
 
     chrome.storage.local.set({
       savedTabs: savedTabs.map((tabGroup: TabGroup) => {
-        if (tabGroup.id === groupId) {
+        if (tabGroup.group_id === groupId) {
           return {
             ...tabGroup,
             tabs: newSavedTabs,
@@ -113,20 +113,19 @@ const onClickUrl = async (groupId: string, tabId: number, url: string) => {
   chrome.tabs.create({ url: url, active: false });
 };
 
-const saveTabs = (tabs: chrome.tabs.Tab[]) => {
+const saveTabs = (tabs: chrome.tabs.Tab[], payload: TabGroup) => {
   chrome.storage.local.get("savedTabs", async function (data) {
     const tabsData = tabs.map((tab) => ({ id: tab.id, title: tab.title, url: tab.url }));
 
+    const tabGroup = [
+      { tabs: tabsData, group_id: uuidv4(), created_at: new Date().toISOString() },
+    ].concat(payload);
+
+    console.log(tabGroup);
+
     chrome.storage.local.set(
       {
-        savedTabs: [
-          ...(data.savedTabs || []),
-          {
-            id: uuidv4(),
-            date: new Date().toISOString(),
-            tabs: tabsData,
-          },
-        ],
+        savedTabs: [...(data.savedTabs || []), ...tabGroup],
       },
 
       () => displayTabs()
@@ -141,7 +140,7 @@ const deleteTab = (groupId: string, tabId: number) => {
   chrome.storage.local.get("savedTabs", function (data) {
     const savedTabs = data.savedTabs.reverse() || [];
 
-    const findTabGroup = savedTabs.find((tabGroup: TabGroup) => tabGroup.id === groupId);
+    const findTabGroup = savedTabs.find((tabGroup: TabGroup) => tabGroup.group_id === groupId);
     if (!findTabGroup) return;
 
     const newSavedTabs = findTabGroup.tabs.filter((tab: Tab) => tab.id !== tabId);
@@ -149,7 +148,7 @@ const deleteTab = (groupId: string, tabId: number) => {
 
     if (newSavedTabs.length === 0) {
       chrome.storage.local.set({
-        savedTabs: savedTabs.filter((tabGroup: TabGroup) => tabGroup.id !== groupId),
+        savedTabs: savedTabs.filter((tabGroup: TabGroup) => tabGroup.group_id !== groupId),
       });
 
       tabGroup?.remove();
@@ -158,7 +157,7 @@ const deleteTab = (groupId: string, tabId: number) => {
 
     chrome.storage.local.set({
       savedTabs: savedTabs.map((tabGroup: TabGroup) => {
-        if (tabGroup.id === groupId) {
+        if (tabGroup.group_id === groupId) {
           return {
             ...tabGroup,
             tabs: newSavedTabs,
@@ -175,6 +174,8 @@ const deleteTab = (groupId: string, tabId: number) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "initiateSync") {
+    console.log(request.data);
+
     chrome.tabs.query({}, async function (tabs) {
       const syncTabUrl = chrome.runtime.getURL("synctab.html");
 
@@ -183,7 +184,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       );
 
       if (tabsToSave.length > 0) {
-        saveTabs(tabsToSave);
+        saveTabs(tabsToSave, request.data);
 
         chrome.tabs.remove(tabsToSave.map((tab) => tab.id || 0)).then(() => {
           const syncTabs = tabs.filter((tab) => tab.url === syncTabUrl);

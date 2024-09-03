@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
+  "version": "1.0",
   "name": "SyncTab",
   "description": "An extension that syncs your tabs",
-  "version": "1.0",
 
   "action": {
     "default_icon": "assets/sync.png"
@@ -18,6 +18,8 @@
   "background": {
     "service_worker": "background.js"
   },
+
+  "host_permissions": ["http://localhost:5000/"],
 
   "permissions": ["tabs", "storage", "scripting", "activeTab"]
 }
