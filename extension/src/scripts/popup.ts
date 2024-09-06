@@ -27,49 +27,103 @@ const convertDate = (date: string) => {
 };
 
 const displayTabs = async () => {
-  if (!tabContainer) return;
-  tabContainer.innerHTML = "";
+  try {
+    if (!tabContainer) return;
+    tabContainer.innerHTML = "";
+    chrome.storage.local.get("user", async function (payload) {
+      const res = await fetch("http://localhost:5000/api/v1/urls/url-group", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${payload.user.token}`,
+        },
+      });
 
-  chrome.storage.local.get("savedTabs", function (data) {
-    const savedTabs =
-      data.savedTabs.sort((a: TabGroup, b: TabGroup) => {
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      }) || [];
+      const data = await res.json();
 
-    savedTabs.forEach(function (tab: TabGroup) {
-      const tabHTML = `				
-		<div class="tab-group mb-2" data-group-id="${tab.group_id}">	
-			<h3 class="text-2xl font-black">${convertDate(tab.created_at)}</h3>
-			<ul id="tab-${tab.group_id}" class="tabs"></ul>
-		</div>
-		`;
+      const savedTabs =
+        data.sort((a: TabGroup, b: TabGroup) => {
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        }) || [];
 
-      tabContainer.insertAdjacentHTML("beforeend", tabHTML);
+      savedTabs.forEach(function (tab: TabGroup) {
+        const tabHTML = `
+    	<div class="tab-group mb-2" data-group-id="${tab.group_id}">
+    		<h3 class="text-2xl font-black">${convertDate(tab.created_at)}</h3>
+    		<ul id="tab-${tab.group_id}" class="tabs"></ul>
+    	</div>
+    	`;
 
-      const tabGroup = document.getElementById(`tab-${tab.group_id}`);
-      if (!tabGroup) return;
+        tabContainer.insertAdjacentHTML("beforeend", tabHTML);
 
-      tab.tabs.forEach((t: Tab) => {
-        const tabItem = document.createElement("li");
-        tabItem.id = t.id.toString();
+        const tabGroup = document.getElementById(`tab-${tab.group_id}`);
+        if (!tabGroup) return;
 
-        tabItem.innerHTML = `
+        tab.tabs.forEach((t: Tab) => {
+          const tabItem = document.createElement("li");
+          tabItem.id = t.id.toString();
+
+          tabItem.innerHTML = `
         	<span id="url-${t.id?.toString() || ""}" class="font-medium">${t.title || "No title"}</span>
         	<button id="delete-${t.id}">
         		<svg width="24px" height="24px" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path d="M289.94 256l95-95A24 24 0 00351 127l-95 95-95-95a24 24 0 00-34 34l95 95-95 95a24 24 0 1034 34l95-95 95 95a24 24 0 0034-34z" fill="white"/>
         	</button>
-		`;
+    	`;
 
-        tabGroup.appendChild(tabItem);
+          tabGroup.appendChild(tabItem);
 
-        const deleteButton = document.getElementById(`delete-${t.id}`);
-        if (deleteButton) deleteButton.onclick = () => deleteTab(tab.group_id, t.id || 0);
+          const deleteButton = document.getElementById(`delete-${t.id}`);
+          if (deleteButton) deleteButton.onclick = () => deleteTab(tab.group_id, t.id || 0);
 
-        const tabToUrl = document.getElementById(`url-${t.id?.toString() || ""}`);
-        if (tabToUrl) tabToUrl.onclick = () => onClickUrl(tab.group_id, t.id || 0, t.url || "");
+          const tabToUrl = document.getElementById(`url-${t.id?.toString() || ""}`);
+          if (tabToUrl) tabToUrl.onclick = () => onClickUrl(tab.group_id, t.id || 0, t.url || "");
+        });
       });
     });
-  });
+
+    // chrome.storage.local.get("savedTabs", function (data) {
+    //   const savedTabs =
+    //     data.savedTabs.sort((a: TabGroup, b: TabGroup) => {
+    //       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    //     }) || [];
+
+    //   savedTabs.forEach(function (tab: TabGroup) {
+    //     const tabHTML = `
+    // 	<div class="tab-group mb-2" data-group-id="${tab.group_id}">
+    // 		<h3 class="text-2xl font-black">${convertDate(tab.created_at)}</h3>
+    // 		<ul id="tab-${tab.group_id}" class="tabs"></ul>
+    // 	</div>
+    // 	`;
+
+    //     tabContainer.insertAdjacentHTML("beforeend", tabHTML);
+
+    //     const tabGroup = document.getElementById(`tab-${tab.group_id}`);
+    //     if (!tabGroup) return;
+
+    //     tab.tabs.forEach((t: Tab) => {
+    //       const tabItem = document.createElement("li");
+    //       tabItem.id = t.id.toString();
+
+    //       tabItem.innerHTML = `
+    //     	<span id="url-${t.id?.toString() || ""}" class="font-medium">${t.title || "No title"}</span>
+    //     	<button id="delete-${t.id}">
+    //     		<svg width="24px" height="24px" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path d="M289.94 256l95-95A24 24 0 00351 127l-95 95-95-95a24 24 0 00-34 34l95 95-95 95a24 24 0 1034 34l95-95 95 95a24 24 0 0034-34z" fill="white"/>
+    //     	</button>
+    // 	`;
+
+    //       tabGroup.appendChild(tabItem);
+
+    //       const deleteButton = document.getElementById(`delete-${t.id}`);
+    //       if (deleteButton) deleteButton.onclick = () => deleteTab(tab.group_id, t.id || 0);
+
+    //       const tabToUrl = document.getElementById(`url-${t.id?.toString() || ""}`);
+    //       if (tabToUrl) tabToUrl.onclick = () => onClickUrl(tab.group_id, t.id || 0, t.url || "");
+    //     });
+    //   });
+    // });
+  } catch (error) {
+    console.error("Error:", error);
+  }
 };
 
 document.addEventListener("DOMContentLoaded", displayTabs);
@@ -113,23 +167,42 @@ const onClickUrl = async (groupId: string, tabId: number, url: string) => {
   chrome.tabs.create({ url: url, active: false });
 };
 
-const saveTabs = (tabs: chrome.tabs.Tab[], payload: TabGroup) => {
-  chrome.storage.local.get("savedTabs", async function (data) {
-    const tabsData = tabs.map((tab) => ({ id: tab.id, title: tab.title, url: tab.url }));
+const saveTabs = async (tabs: chrome.tabs.Tab[], payload: TabGroup) => {
+  //   chrome.storage.local.get("savedTabs", async function (data) {
+  //     const tabsData = tabs.map((tab) => ({ id: tab.id, title: tab.title, url: tab.url }));
 
-    const tabGroup = [
-      { tabs: tabsData, group_id: uuidv4(), created_at: new Date().toISOString() },
-    ].concat(payload);
+  //     const tabGroup = [
+  //       { tabs: tabsData, group_id: uuidv4(), created_at: new Date().toISOString() },
+  //     ].concat(payload);
 
-    console.log(tabGroup);
+  //     chrome.storage.local.set(
+  //       {
+  //         savedTabs: [...(data.savedTabs || []), ...tabGroup],
+  //       },
+  //       () => displayTabs()
+  //     );
+  //   });
 
-    chrome.storage.local.set(
-      {
-        savedTabs: [...(data.savedTabs || []), ...tabGroup],
-      },
+  chrome.storage.local.get("user", async function (payload) {
+    const tabsData = tabs.map((tab) => ({
+      url: tab.url || "",
+      title: tab.title || "",
+    }));
 
-      () => displayTabs()
-    );
+    try {
+      const res = await fetch("http://localhost:5000/api/v1/urls/url-group", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${payload.user.token}`,
+        },
+        body: JSON.stringify(tabsData),
+      });
+
+      displayTabs();
+    } catch (error) {
+      console.error("Error:", error);
+    }
   });
 };
 
@@ -174,8 +247,6 @@ const deleteTab = (groupId: string, tabId: number) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "initiateSync") {
-    console.log(request.data);
-
     chrome.tabs.query({}, async function (tabs) {
       const syncTabUrl = chrome.runtime.getURL("synctab.html");
 

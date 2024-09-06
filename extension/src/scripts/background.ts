@@ -2,6 +2,16 @@ const SYNCTAB_URL = "synctab.html";
 const SYNCTAB_LOGIN_URL = "login.html";
 const SYNCTAB_API_URL = "http://localhost:5000/api/v1";
 
+type TabResponse = {
+  tabs: {
+    id: number;
+    url: string;
+    title: string;
+  }[];
+  group_id: string;
+  created_at: string;
+};
+
 const user = {
   token: "",
 };
@@ -26,7 +36,7 @@ const initiateSync = async (tabContext: chrome.tabs.Tab) => {
       },
     });
 
-    const data = await res.json();
+    const data: TabResponse = await res.json();
 
     setTimeout(() => {
       chrome.runtime.sendMessage({ action: "initiateSync", data });
