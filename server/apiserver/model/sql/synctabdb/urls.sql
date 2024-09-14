@@ -15,3 +15,20 @@ end;
 $$ language plpgsql;
 
 /*SQLEND*/
+
+create or replace function main.delete_url_v1(
+	in _id uuid
+) returns boolean as 
+$$
+declare
+	_deleted boolean;
+begin
+	delete from main.urls
+	where id = _id
+	returning true into _deleted;
+	
+	return _deleted;
+end;
+$$ language plpgsql;
+
+/*SQLEND*/

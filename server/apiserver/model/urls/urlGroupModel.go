@@ -2,6 +2,7 @@ package urls
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/asif10388/synctab/apiserver/controller"
@@ -16,9 +17,9 @@ func init() {
 	urlFields := "id, group_id, title, url, created_at"
 
 	urlTemplates := map[string]string{
-		"add_urls_v1":               "select _id from main.add_urls_v1($1, $2, $3, $4)",
-		"get_distinct_groups_count": "select count(id), group_id from main.urls group by group_id",
-		"get_urls_v1_by_user_id":    fmt.Sprintf("select %s from main.urls where user_id = $1", urlFields),
+		"add_urls_v1":            "select _id from main.add_urls_v1($1, $2, $3, $4)",
+		"delete_url_v1":          "select main.delete_url_v1($1)",
+		"get_urls_v1_by_user_id": fmt.Sprintf("select %s from main.urls where user_id = $1", urlFields),
 	}
 
 	database.NewStatements().AddSchemaTemplateMap(urlTemplates)
@@ -101,7 +102,7 @@ func (urls *Urls) CreateUrls(ctx *gin.Context) (string, error) {
 	return groupId, nil
 }
 
-func (urlModel *UrlModel) getUrlsByUserId(ctx context.Context, urls *Urls, tx pgx.Tx) error {
+func (urlModel *UrlModel) getUrlsByUser(ctx context.Context, urls *Urls, tx pgx.Tx) error {
 	getUrlsByUserIdSql := database.NewStatements().GetSchemaTemplate("get_urls_v1_by_user_id")
 	if getUrlsByUserIdSql == "" {
 		return fmt.Errorf("get_urls_v1_by_user_id SQL function not found")
@@ -163,7 +164,7 @@ func (urls *Urls) GetUrlsByUserId(ctx *gin.Context) (*[]TransformUrls, error) {
 		}
 	}()
 
-	err = urlModel.getUrlsByUserId(ctx, urls, tx)
+	err = urlModel.getUrlsByUser(ctx, urls, tx)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to fetch urls")
 		return nil, err
@@ -217,4 +218,63 @@ func (urls *Urls) GetUrlsByUserId(ctx *gin.Context) (*[]TransformUrls, error) {
 
 	return nil, err
 
+}
+
+func (urlModel *UrlModel) delete(ctx context.Context, urls *Urls, tx pgx.Tx) error {
+	deleteUrlById := database.NewStatements().GetSchemaTemplate("delete_url_v1")
+	if deleteUrlById == "" {
+		return fmt.Errorf("delete_url_v1 SQL function not found")
+	}
+
+	var deleted bool
+
+	err := tx.QueryRow(ctx, deleteUrlById, urlModel.Id).Scan(&deleted)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to delete url")
+		return errors.New("failed to delete url")
+	}
+
+	if !deleted {
+		log.Error().Err(err).Msg("failed to delete url. delete operation failed")
+		err = errors.New("failed to delete url")
+		return err
+	}
+
+	return nil
+}
+
+func (urls *Urls) DeleteUrlById(ctx *gin.Context) error {
+	urlModel := &UrlModel{}
+	urlModel.Id = ctx.Param("id")
+
+	tx, err := urls.Database.CPool.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		log.Error().Err(err).Msg("failed to start transaction")
+		return controller.ErrInternal
+	}
+
+	defer func() {
+		if err != nil {
+			txErr := tx.Rollback(ctx)
+			if txErr != nil {
+				log.Error().Err(txErr).Msg("failed to rollback transaction")
+			}
+		} else {
+			txErr := tx.Commit(ctx)
+			if txErr != nil {
+				log.Error().Err(txErr).Msg("failed to commit transaction")
+				err = txErr
+			} else {
+				log.Info().Msgf("successfully created urls")
+			}
+		}
+	}()
+
+	err = urlModel.delete(ctx, urls, tx)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to delete url")
+		return err
+	}
+
+	return nil
 }

@@ -35,6 +35,7 @@ func NewUrlsController(controller *controller.Controller, model *model.Model, mi
 func (urlController *UrlController) Init(publicGroup *gin.RouterGroup) {
 	urlsGroup := publicGroup.Group(urlsPrefix, urlController.Middleware.UserAuthorize())
 
-	urlsGroup.GET(urlGroupPath, urlController.getUrlsByUserId)
 	urlsGroup.POST(urlGroupPath, urlController.addUrlGroupHandler)
+	urlsGroup.GET(urlGroupPath, urlController.getUrlsByUserHandler)
+	urlsGroup.DELETE(urlIdPrefix, urlController.deleteUrlByIdHandler)
 }

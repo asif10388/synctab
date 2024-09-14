@@ -2,10 +2,10 @@ extension/dist
 extension/node_modules
 
 # Binaries for programs and plugins
-*.exe
-*.exe~
-*.dll
 *.so
+*.exe
+*.dll
+*.exe~
 *.dylib
 
 # Test binary, built with `go test -c`

@@ -11,6 +11,7 @@ import (
 const (
 	urlsPrefix   = "/urls"
 	urlGroupPath = "/url-group"
+	urlIdPrefix  = urlGroupPath + "/:id"
 )
 
 type UrlController struct {

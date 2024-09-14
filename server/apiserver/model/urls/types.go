@@ -11,8 +11,8 @@ type UrlModel struct {
 	Id      string `json:"id"`
 	Url     string `json:"url"`
 	Title   string `json:"title"`
-	UserId  string `json:"user_id,omitempty"`
 	GroupId string `json:"group_id"`
+	UserId  string `json:"user_id,omitempty"`
 	model.ModelCommon
 }
 
@@ -30,7 +30,7 @@ type Tabs struct {
 }
 
 type TransformUrls struct {
-	CreatedAt time.Time `json:"created_at"`
-	GroupId   string    `json:"group_id"`
 	Tabs      []Tabs    `json:"tabs"`
+	GroupId   string    `json:"group_id"`
+	CreatedAt time.Time `json:"created_at"`
 }

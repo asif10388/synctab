@@ -32,7 +32,7 @@ func (urlsController *UrlController) addUrlGroupHandler(ctx *gin.Context) {
 
 }
 
-func (urlsController *UrlController) getUrlsByUserId(ctx *gin.Context) {
+func (urlsController *UrlController) getUrlsByUserHandler(ctx *gin.Context) {
 	var err error
 	var response *[]urls.TransformUrls
 
@@ -62,4 +62,30 @@ func (urlsController *UrlController) getUrlsByUserId(ctx *gin.Context) {
 		return
 	}
 
+}
+
+func (urlsController *UrlController) deleteUrlByIdHandler(ctx *gin.Context) {
+	var err error
+
+	defer func() {
+		if err != nil {
+			ctx.Error(err)
+			if err == controller.ErrUserNotAuthorized {
+				ctx.JSON(http.StatusUnauthorized, controller.Response{Message: err.Error()})
+			} else {
+				ctx.JSON(http.StatusInternalServerError, controller.Response{Message: err.Error()})
+			}
+
+		} else {
+
+			ctx.JSON(http.StatusOK, gin.H{
+				"message": "URL Deleted successfully",
+			})
+		}
+	}()
+
+	err = urlsController.Urls.DeleteUrlById(ctx)
+	if err != nil {
+		return
+	}
 }
