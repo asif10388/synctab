@@ -11,18 +11,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     fetch("http://localhost:5000/api/v1/auth/login", {
       method: "POST",
-
       headers: {
         "Content-Type": "application/json",
       },
-
       body: JSON.stringify({ email, password }),
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.token) {
-          console.log("Success:", data);
-
           chrome.storage.local.set({ user: data }, function () {
             chrome.tabs.create({ url: chrome.runtime.getURL("synctab.html") });
             window.close();
