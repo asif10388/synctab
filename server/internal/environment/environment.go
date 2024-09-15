@@ -17,6 +17,7 @@ func getEnvFileFromType(etype string) string {
 	if etype == "dev" {
 		return ApiServiceDevEnvFile
 	}
+
 	return ApiServiceProdEnvFile
 }
 
