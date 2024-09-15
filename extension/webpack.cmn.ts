@@ -9,6 +9,7 @@ const config: webpack.Configuration = {
     content: "./src/scripts/content.ts",
     background: "./src/scripts/background.ts",
   },
+
   resolve: {
     extensions: [".ts"],
   },
@@ -31,7 +32,12 @@ const config: webpack.Configuration = {
 
   plugins: [
     new CopyWebpackPlugin({
-      patterns: [{ from: "static" }],
+      patterns: [
+        { from: "public" },
+        { from: "./src/pages" },
+        { from: "./src/styles" },
+        { from: "manifest.json" },
+      ],
     }),
   ],
 };

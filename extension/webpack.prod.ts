@@ -1,6 +1,6 @@
 import { Configuration } from "webpack";
 import { merge } from "webpack-merge";
-import config from "./webpack.common";
+import config from "./webpack.cmn";
 
 const merged = merge<Configuration>(config, {
   mode: "production",

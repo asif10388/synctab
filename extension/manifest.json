@@ -1,11 +1,18 @@
 {
   "manifest_version": 3,
-  "version": "1.0",
   "name": "SyncTab",
-  "description": "An extension that syncs your tabs",
+  "version": "1.0.0",
+  "description": "An extension that syncs your tabs accross all browsers",
+
+  "icons": {
+    "16": "images/sync.png",
+    "32": "images/sync.png",
+    "48": "images/sync.png",
+    "128": "images/sync.png"
+  },
 
   "action": {
-    "default_icon": "assets/sync.png"
+    "default_icon": "images/sync.png"
   },
 
   "content_scripts": [
