@@ -2,12 +2,14 @@ const SYNCTAB_URL = "synctab.html";
 const SYNCTAB_LOGIN_URL = "login.html";
 const SYNCTAB_API_URL = "http://localhost:5000/api/v1";
 
+type Tabs = {
+  id: number;
+  url: string;
+  title: string;
+};
+
 type TabResponse = {
-  tabs: {
-    id: number;
-    url: string;
-    title: string;
-  }[];
+  tabs: Tabs[];
   group_id: string;
   created_at: string;
 };
@@ -22,34 +24,48 @@ const isUserLoggedIn = async () => {
   return !!user.token;
 };
 
+const redirectUser = async (callback: (tab: chrome.tabs.Tab) => void) => {
+  return isUserLoggedIn().then((isLoggedIn) => {
+    isLoggedIn
+      ? chrome.tabs.create(createParams, callback)
+      : chrome.tabs.create({ url: SYNCTAB_LOGIN_URL });
+  });
+};
+
 const createParams = {
   url: chrome.runtime.getURL(SYNCTAB_URL),
 };
 
-const initiateSync = async (tabContext: chrome.tabs.Tab) => {
+const initiateSync = async () => {
   try {
-    const res = await fetch(`${SYNCTAB_API_URL}/urls/url-group`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${user.token}`,
-      },
-    });
-
-    const data: TabResponse = await res.json();
-
     setTimeout(() => {
-      chrome.runtime.sendMessage({ action: "initiateSync", data });
+      chrome.runtime.sendMessage({ action: "initiateSync" });
     }, 500);
   } catch (error) {
     console.error("Error:", error);
   }
 };
 
-chrome.action.onClicked.addListener(() => {
-  isUserLoggedIn().then((isLoggedIn) => {
-    isLoggedIn
-      ? chrome.tabs.create(createParams, initiateSync)
-      : chrome.tabs.create({ url: SYNCTAB_LOGIN_URL });
+const displayTabs = async () => {
+  try {
+    setTimeout(() => {
+      chrome.runtime.sendMessage({ action: "displayTabs" });
+    }, 500);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
+
+chrome.action.onClicked.addListener(() => redirectUser(initiateSync));
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: "display-synctab",
+    title: "Display SyncTab",
+    contexts: ["all"],
   });
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === "display-synctab") redirectUser(displayTabs);
 });

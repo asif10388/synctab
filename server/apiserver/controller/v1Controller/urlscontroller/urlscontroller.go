@@ -1,6 +1,8 @@
 package urlscontroller
 
 import (
+	"net/http"
+
 	controller "github.com/asif10388/synctab/apiserver/controller"
 	"github.com/asif10388/synctab/apiserver/middleware"
 	model "github.com/asif10388/synctab/apiserver/model"
@@ -34,6 +36,12 @@ func NewUrlsController(controller *controller.Controller, model *model.Model, mi
 
 func (urlController *UrlController) Init(publicGroup *gin.RouterGroup) {
 	urlsGroup := publicGroup.Group(urlsPrefix, urlController.Middleware.UserAuthorize())
+
+	urlsGroup.GET(validatePath, func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{
+			"message": "valid token",
+		})
+	})
 
 	urlsGroup.POST(urlGroupPath, urlController.addUrlGroupHandler)
 	urlsGroup.GET(urlGroupPath, urlController.getUrlsByUserHandler)

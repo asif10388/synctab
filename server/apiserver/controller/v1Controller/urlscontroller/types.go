@@ -10,6 +10,7 @@ import (
 
 const (
 	urlsPrefix   = "/urls"
+	validatePath = "/validate"
 	urlGroupPath = "/url-group"
 	urlIdPrefix  = urlGroupPath + "/:id"
 )
