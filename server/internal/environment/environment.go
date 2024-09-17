@@ -14,11 +14,7 @@ import (
 var envInstance *Environment
 
 func getEnvFileFromType(etype string) string {
-	if etype == "dev" {
-		return ApiServiceDevEnvFile
-	}
-
-	return ApiServiceProdEnvFile
+	return ApiServiceOverrideEnvFile
 }
 
 func NewEnvironment(etype string) (*Environment, error) {

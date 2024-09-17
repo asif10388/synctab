@@ -16,5 +16,4 @@ extension/node_modules
 
 tmp
 
-server/internal/environment/conf/apiservice-dev.env
-server/internal/environment/conf/apiservice-prod.env
+server/internal/environment/conf/apiservice-override.env

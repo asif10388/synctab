@@ -4,8 +4,7 @@ const (
 	ApiServiceDir             = ""
 	ApiServiceConfDir         = ApiServiceDir + "/conf"
 	ApiServiceSqlDir          = "/apiserver/model/sql/synctabdb"
-	ApiServiceDevEnvFile      = ApiServiceConfDir + "/apiservice-dev.env"
-	ApiServiceProdEnvFile     = ApiServiceConfDir + "/apiservice-prod.env"
+	ApiServiceOverrideEnvFile = ApiServiceConfDir + "/apiservice-override.env"
 	ApiServiceEnvDefaultsFile = ApiServiceConfDir + "/apiservice-defaults.env"
 )
 
