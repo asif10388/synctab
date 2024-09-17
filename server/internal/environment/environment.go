@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	"github.com/rs/zerolog/log"
 )
 
 var envInstance *Environment
@@ -32,6 +33,16 @@ func NewEnvironment(etype string) (*Environment, error) {
 		if err != nil {
 			fmt.Println("failed to read apiservice environment file")
 			return nil, err
+		}
+
+		for key := range env {
+			findEnvVAlue := os.Getenv(key)
+			if findEnvVAlue != "" {
+				env[key] = findEnvVAlue
+			} else {
+				log.Error().Msg("failed to get environment variable from system")
+				return nil, fmt.Errorf("failed to get environment variable from system")
+			}
 		}
 
 		envDefaults, err := godotenv.Read(filepath.Join(pwd, "/internal/environment"+ApiServiceEnvDefaultsFile))

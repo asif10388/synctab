@@ -15,5 +15,3 @@ extension/node_modules
 *.out
 
 tmp
-
-server/internal/environment/conf/apiservice-override.env

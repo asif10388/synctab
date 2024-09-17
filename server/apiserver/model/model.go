@@ -27,7 +27,7 @@ func NewModel() (*Model, error) {
 	}
 
 	model.ModelDefaults = ModelDefaults{
-		SchemaName:  model.Env.GetStrEnv("SYNCTAB_ACCOUNT_SCHEMA_NAME"),
+		SchemaName:  model.Env.GetStrEnv("SYNCTAB_SCHEMA_NAME"),
 		TokenSecret: model.Env.GetEnv("SYNCTAB_API_JWT_SECRET"),
 
 		MaxUrlLen:   model.Env.GetIntEnv("SYNCTAB_MAXURLLEN"),
