@@ -1,18 +1,29 @@
+import fs from "fs";
 import path from "path";
 import webpack from "webpack";
 import CopyWebpackPlugin from "copy-webpack-plugin";
 
+const getAllScripts = () => {
+  const fileMap: {
+    [key: string]: string;
+  } = {};
+
+  const scriptPath = "./src/scripts";
+  const files = fs.readdirSync(scriptPath, { recursive: true }) as string[];
+
+  files.forEach((file) => {
+    const fileName = file.split("/")[file.split("/").length - 1].split(".")[0];
+    if (file.split(".")[1] === "ts") fileMap[fileName] = `${scriptPath}/${file}`;
+  });
+
+  return fileMap;
+};
+
 const config: webpack.Configuration = {
-  entry: {
-    config: "./src/utils/config.ts",
-    popup: "./src/scripts/popup.ts",
-    login: "./src/scripts/login.ts",
-    content: "./src/scripts/content.ts",
-    background: "./src/scripts/background.ts",
-  },
+  entry: getAllScripts(),
 
   resolve: {
-    extensions: [".ts"],
+    extensions: [".ts", ".js"],
   },
 
   module: {

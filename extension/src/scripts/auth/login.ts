@@ -13,17 +13,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     fetch(`${SYNCTAB_API_URL}/auth/login`, {
       method: "POST",
+
       headers: {
         "Content-Type": "application/json",
       },
+
       body: JSON.stringify({ email, password }),
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.token) {
           chrome.storage.local.set({ user: data }, function () {
-            chrome.tabs.create({ url: chrome.runtime.getURL("synctab.html") });
-            window.close();
+            chrome.storage.local.get("action", function (payload) {
+              chrome.tabs.create({ url: chrome.runtime.getURL("synctab.html") });
+              chrome.runtime.sendMessage({ action: payload.action }, () => window.close());
+            });
           });
         } else {
           loginError.style.display = "block";

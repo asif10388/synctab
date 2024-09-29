@@ -1,3 +1,4 @@
+import { saveTabs } from "../api/urls";
 import { SYNCTAB_API_URL } from "../utils/config";
 
 type Tab = {
@@ -83,13 +84,8 @@ const displayTabs = () => {
         });
       });
     } catch (error) {
-      chrome.storage.local.clear();
       console.error("Error:", error);
-
-      const currentTab = await chrome.tabs.query({ active: true, currentWindow: true });
-      const currentTabId = currentTab[0].id;
-
-      if (currentTabId) chrome.tabs.remove(currentTabId);
+      const syncTabUrl = chrome.runtime.getURL("synctab.html");
       chrome.tabs.create({ url: "login.html" });
     }
   });
@@ -120,38 +116,6 @@ const onClickUrl = async (groupId: string, tabId: number, url: string) => {
     }
   });
 
-  //   chrome.storage.local.get("savedTabs", function (data) {
-  //     const savedTabs = data.savedTabs.reverse() || [];
-
-  //     const findTabGroup = savedTabs.find((tabGroup: TabGroup) => tabGroup.group_id === groupId);
-  //     if (!findTabGroup) return;
-
-  //     const newSavedTabs = findTabGroup.tabs.filter((tab: Tab) => tab.id !== tabId);
-
-  //     if (newSavedTabs.length === 0) {
-  //       chrome.storage.local.set({
-  //         savedTabs: savedTabs.filter((tabGroup: TabGroup) => tabGroup.group_id !== groupId),
-  //       });
-
-  //       tabGroup?.remove();
-  //       return;
-  //     }
-
-  //     chrome.storage.local.set({
-  //       savedTabs: savedTabs.map((tabGroup: TabGroup) => {
-  //         if (tabGroup.group_id === groupId) {
-  //           return {
-  //             ...tabGroup,
-  //             tabs: newSavedTabs,
-  //           };
-  //         }
-  //         return tabGroup;
-  //       }),
-  //     });
-  //   });
-
-  //   tabItem?.remove();
-
   chrome.tabs.create({ url: url, active: false });
 };
 
@@ -177,70 +141,9 @@ const deleteTab = async (groupId: string, tabId: number) => {
       console.error("Error:", error);
     }
   });
-
-  //   chrome.storage.local.get("savedTabs", function (data) {
-  //     const savedTabs = data.savedTabs.reverse() || [];
-
-  //     const findTabGroup = savedTabs.find((tabGroup: TabGroup) => tabGroup.group_id === groupId);
-  //     if (!findTabGroup) return;
-
-  //     const newSavedTabs = findTabGroup.tabs.filter((tab: Tab) => tab.id !== tabId);
-  //     console.log(newSavedTabs);
-
-  //     if (newSavedTabs.length === 0) {
-  //       chrome.storage.local.set({
-  //         savedTabs: savedTabs.filter((tabGroup: TabGroup) => tabGroup.group_id !== groupId),
-  //       });
-
-  //       tabGroup?.remove();
-  //       return;
-  //     }
-
-  //     chrome.storage.local.set({
-  //       savedTabs: savedTabs.map((tabGroup: TabGroup) => {
-  //         if (tabGroup.group_id === groupId) {
-  //           return {
-  //             ...tabGroup,
-  //             tabs: newSavedTabs,
-  //           };
-  //         }
-
-  //         return tabGroup;
-  //       }),
-  //     });
-  //   });
-
-  //   tabItem?.remove();
 };
 
-const saveTabs = async (tabs: chrome.tabs.Tab[], payload: TabGroup) => {
-  chrome.storage.local.get("user", async function (payload) {
-    const tabsData = tabs.map((tab) => ({
-      url: tab.url || "",
-      title: tab.title || "",
-    }));
-
-    console.log(tabsData);
-
-    try {
-      const res = await fetch(`${SYNCTAB_API_URL}/urls/url-group`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${payload.user.token}`,
-        },
-
-        body: JSON.stringify(tabsData),
-      });
-
-      displayTabs();
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  });
-};
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request) => {
   if (request.action === "initiateSync") {
     chrome.tabs.query({}, async function (tabs) {
       const syncTabUrl = chrome.runtime.getURL("synctab.html");
@@ -255,19 +158,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       );
 
       if (tabsToSave.length > 0) {
-        saveTabs(tabsToSave, request.data);
+        const res = await saveTabs(tabsToSave, request.data);
 
-        await chrome.tabs.remove(tabsToSave.map((tab) => tab.id || 0)).then(() => {
-          const syncTabs = tabs.filter((tab) => tab.url === syncTabUrl);
+        if (res) {
+          displayTabs();
 
-          if (syncTabs.length > 1) {
-            syncTabs.forEach((tab) => !tab?.active && chrome.tabs.remove(tab?.id || 0));
-          }
-        });
+          await chrome.tabs.remove(tabsToSave.map((tab) => tab.id || 0)).then(() => {
+            const syncTabs = tabs.filter((tab) => tab.url === syncTabUrl);
+
+            if (syncTabs.length > 1) {
+              syncTabs.forEach((tab) => !tab?.active && chrome.tabs.remove(tab?.id || 0));
+            }
+          });
+        }
       }
     });
   } else if (request.action === "displayTabs") {
-    displayTabs();
+    // displayTabs();
   } else {
     console.log("No action");
   }
