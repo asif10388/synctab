@@ -1,6 +1,4 @@
-const SYNCTAB_URL = "synctab.html";
-const SYNCTAB_LOGIN_URL = "login.html";
-const SYNCTAB_API_URL = "http://localhost:5000/api/v1";
+import { SYNCTAB_API_URL, SYNCTAB_LOGIN_URL, SYNCTAB_URL } from "../utils/config";
 
 type Tabs = {
   id: number;
@@ -46,7 +44,7 @@ const initiateSync = async () => {
   }
 };
 
-const displayTabs = async () => {
+const displayTabsWorker = async () => {
   try {
     setTimeout(() => {
       chrome.runtime.sendMessage({ action: "displayTabs" });
@@ -67,5 +65,5 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === "display-synctab") redirectUser(displayTabs);
+  if (info.menuItemId === "display-synctab") redirectUser(displayTabsWorker);
 });

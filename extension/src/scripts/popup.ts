@@ -1,6 +1,4 @@
-import { v4 as uuidv4 } from "uuid";
-
-const SYNCTAB_API_URL = "http://localhost:5000/api/v1";
+import { SYNCTAB_API_URL } from "../utils/config";
 
 type Tab = {
   id: number;
@@ -34,7 +32,7 @@ const displayTabs = () => {
 
   chrome.storage.local.get("user", async function (payload) {
     try {
-      const res = await fetch("http://localhost:5000/api/v1/urls/url-group", {
+      const res = await fetch(`${SYNCTAB_API_URL}/urls/url-group`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

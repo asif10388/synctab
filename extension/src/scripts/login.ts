@@ -1,3 +1,5 @@
+import { SYNCTAB_API_URL } from "../utils/config";
+
 document.addEventListener("DOMContentLoaded", function () {
   const loginForm = document.getElementById("login-form");
   const loginError = document.getElementById("login-error");
@@ -9,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const email = (document?.getElementById("email") as HTMLInputElement)?.value;
     const password = (document?.getElementById("password") as HTMLInputElement)?.value;
 
-    fetch("http://localhost:5000/api/v1/auth/login", {
+    fetch(`${SYNCTAB_API_URL}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
